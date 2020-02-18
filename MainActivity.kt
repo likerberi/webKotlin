@@ -1,5 +1,6 @@
 package com.example.webview
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -13,18 +14,38 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import android.webkit.CookieManager
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
+
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val myWebView: WebView = findViewById(R.id.web1)
-        myWebView.loadUrl("https://www.spacemarket.co.kr")
+        myWebView.setWebViewClient(WebViewClient())
+
+        //myWebView.webViewClient.doUpdateVisitedHistory()
+        myWebView.loadUrl("https://map.vworld.kr/map/maps.do")
+        CookieManager.getInstance().setAcceptThirdPartyCookies(myWebView,true) // > Lollipop
+        myWebView.settings.javaScriptEnabled
+        myWebView.settings.allowContentAccess
+
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
