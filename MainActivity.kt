@@ -23,10 +23,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
-
-
+import android.webkit.WebSettings
+import android.os.Build
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,17 +34,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        var SAMPLEURL = ""
         val myWebView: WebView = findViewById(R.id.web1)
         myWebView.setWebViewClient(WebViewClient())
+        myWebView.settings.setSupportZoom(true)       // 줌 사용 여부 : HTML Meta태그에 적어놓은 설정이 우선 됨
+        myWebView.settings.setBuiltInZoomControls(true) // 줌 사용 여부와 같이 사용해야 하는 설정(안드로이드 내장 기능)
+        myWebView.settings.setDisplayZoomControls(false) // 줌 사용 시 하단에 뜨는 +, - 아이콘 보여주기 여부
+        myWebView.settings.setJavaScriptEnabled(true) // 자바스크립트 사용 여부
+        myWebView.settings.setDomStorageEnabled(true) // 웹뷰내의 localStorage 사용 여부
+        myWebView.settings.setGeolocationEnabled(true) // 웹뷰내의 위치 정보 사용 여부
 
-        //myWebView.webViewClient.doUpdateVisitedHistory()
-        myWebView.loadUrl("https://map.vworld.kr/map/maps.do")
-        CookieManager.getInstance().setAcceptThirdPartyCookies(myWebView,true) // > Lollipop
-        myWebView.settings.javaScriptEnabled
-        myWebView.settings.allowContentAccess
+        //webSettings.setJavaScriptCanOpenWindowsAutomatically(true); // 웹뷰내의 JS의 window.open()을 허용할 것인지에 대한 여부
+        if (Build.VERSION.SDK_INT >= 16) {
+            myWebView.settings.setAllowFileAccessFromFileURLs(true)
+            myWebView.settings.setAllowUniversalAccessFromFileURLs(true)
+        }
 
+        if (Build.VERSION.SDK_INT >= 21) {
+            myWebView.settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW) // HTTPS HTTP의 연동, 서로 호출 가능하도록
+        }
 
+        myWebView.loadUrl(SAMPLEURL)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
