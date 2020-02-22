@@ -1,6 +1,7 @@
 package com.example.webview
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var SAMPLEURL = ""
+        var SAMPLEURL = "https://www.spacemarket.co.kr"
         val myWebView: WebView = findViewById(R.id.web1)
         myWebView.setWebViewClient(WebViewClient())
         myWebView.settings.setSupportZoom(true)       // 줌 사용 여부 : HTML Meta태그에 적어놓은 설정이 우선 됨
@@ -60,8 +61,14 @@ class MainActivity : AppCompatActivity() {
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, "Def.snackbar is changed. How about using shareSheet?")
+                type = "text/plain"
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
         }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
