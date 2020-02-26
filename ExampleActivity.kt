@@ -75,7 +75,7 @@ class ExampleActivity : AppCompatActivity() {
 
                 var result = "Database is connected\n"
                 val st = con.createStatement()
-                val rs = st.executeQuery("select distinct Country from tblCountries")
+                val rs = st.executeQuery("select [tableName] from [DBName]")
                 val rsmd = rs.getMetaData()
 
                 while (rs.next()) {
