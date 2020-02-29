@@ -1,6 +1,7 @@
 package com.example.webview.ui.ui.login
 
 import android.app.Activity
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -14,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.example.webview.MainActivity
 import com.example.webview.R
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
@@ -32,7 +34,7 @@ class LoginActivity : AppCompatActivity() {
         val password = findViewById<EditText>(R.id.password)
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
-        var email = "SAMPLE@KOREA.WILL.OVERCOME" //  will be changed
+        //var email = "SAMPLE@KOREA.WILL.OVERCOME" //  will be changed
 
         loginViewModel = ViewModelProviders.of(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
@@ -112,36 +114,13 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         val auth = FirebaseAuth.getInstance()
-        auth.sendSignInLinkToEmail(email, actionCodeSettings)
+        auth.sendSignInLinkToEmail(username.toString(), actionCodeSettings)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "mail sent", Toast.LENGTH_SHORT).show()
                 }
             }
-        val intent = intent
-        val emailLink = intent.data!!.toString()
 
-         // Confirm the link is a sign-in with email link.
-        if (auth.isSignInWithEmailLink(emailLink)) {
-            // Retrieve this from wherever you stored it
-            val email = "someemail@domain.com"
-
-            // The client SDK will parse the code from the link for you.
-            auth.signInWithEmailLink(email, emailLink)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-
-                        val result = task.result
-                        // You can access the new user via result.getUser()
-                        // Additional user info profile *not* available via:
-                        // result.getAdditionalUserInfo().getProfile() == null
-                        // You can check if the user is new or existing:
-                        // result.getAdditionalUserInfo().isNewUser()
-                    } else {
-
-                    }
-                }
-        }
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {
