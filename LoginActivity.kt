@@ -2,11 +2,7 @@ package com.example.webview.ui.ui.login
 
 import android.app.Activity
 import android.content.Intent
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -15,26 +11,36 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.example.webview.MainActivity
 import com.example.webview.R
-import com.google.firebase.auth.ActionCodeSettings
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_login)
+        auth = FirebaseAuth.getInstance()
 
         val username = findViewById<EditText>(R.id.username)
         val password = findViewById<EditText>(R.id.password)
         val login = findViewById<Button>(R.id.login)
+        val signin = findViewById<Button>(R.id.signin)
         val loading = findViewById<ProgressBar>(R.id.loading)
-        //var email = "SAMPLE@KOREA.WILL.OVERCOME" //  will be changed
+        // var email = "SAMPLE@KOREA.WILL.OVERCOME" //  will be changed
 
         loginViewModel = ViewModelProviders.of(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
@@ -100,28 +106,38 @@ class LoginActivity : AppCompatActivity() {
                 loginViewModel.login(username.text.toString(), password.text.toString())
             }
         }
-        val actionCodeSettings = ActionCodeSettings.newBuilder()
-            // URL you want to redirect back to. The domain (www.example.com) for this
-            // URL must be whitelisted in the Firebase Console.
-            .setUrl("https://www.example.com/finishSignUp?cartId=1234")
-            // This must be true
-            .setHandleCodeInApp(true)
-            .setIOSBundleId("com.example.ios")
-            .setAndroidPackageName(
-                "com.example.android",
-                true, /* installIfNotAvailable */
-                "24" /* minimumVersion */) // 12=>24
-            .build()
-
-        val auth = FirebaseAuth.getInstance()
-        auth.sendSignInLinkToEmail(username.toString(), actionCodeSettings)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "mail sent", Toast.LENGTH_SHORT).show()
+        signin.setOnClickListener(View.OnClickListener { view->
+            auth.createUserWithEmailAndPassword(username.toString(), password.toString())
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        val user = auth.currentUser
+                        val nextIntent = Intent(this, MainActivity::class.java)
+                        startActivity(nextIntent)
+                    } else {
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
+        })
+        login.setOnClickListener(View.OnClickListener { view->
+            auth.signInWithEmailAndPassword(username.toString(), password.toString())
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        val user = auth.currentUser
+                        val nextIntent = Intent(this, MainActivity::class.java)
+                        startActivity(nextIntent)
+                    } else {
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
+        })
 
     }
+
+
 
     private fun updateUiWithUser(model: LoggedInUserView) {
         val welcome = getString(R.string.welcome)
@@ -137,7 +153,10 @@ class LoginActivity : AppCompatActivity() {
     private fun showLoginFailed(@StringRes errorString: Int) {
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }
+
+
 }
+
 
 /**
  * Extension function to simplify setting an afterTextChanged action to EditText components.
